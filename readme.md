@@ -9,6 +9,12 @@ When we're finished we'll be having an application consisting of three main arch
 
 If you are only interested in the result, by all means fetch the latest master branch. If you want to know how we get there, continue reading.
 
+- [Prerequisites](#prerequisites)
+- [Creating an API](#creating-an-api)
+    - [Initialize API](#initialize-api)
+    - [Creating a Data Model and CRUD actions](#creating-a-data-model-and-crud-actions)
+    - [Adding Swagger](#adding-swagger)
+
 ## Prerequisites
 To get started with .NET core, you need to download it from [dotnet.microsoft.com](https://dotnet.microsoft.com/download).
 After downloading and installing everything, verify the installation was succesful. Open to a terminal window and type `dotnet --version`.
