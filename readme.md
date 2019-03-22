@@ -26,6 +26,7 @@ To start of we're creating a single API-project. When this step is finished we w
 
 If you're using git, copy the `.gitignore` from the (dotnet core github)[https://github.com/dotnet/core/blob/master/.gitignore] and paste it in the root of the application. Having an incomplete gitignore-file will result in compiled binaries getting added to git.
 
+### Initialize API
 The naming convension for projects is `$"{NameOfTheApplication}.{Layer}"`.
 Using this convension we will name our API-folder `MyApplication.API`.
 The commands below will create a folder, initialize a .NET core webapi, and run the project on port 5000 (http) and 5001 (https). Browsing to (https://localhost:5001/api/values)[https://localhost:5001/api/values] will show a list of two values.
@@ -33,4 +34,79 @@ The commands below will create a folder, initialize a .NET core webapi, and run 
 mkdir MyApplication.API && cd MyApplication.API
 dotnet new webapi
 dotnet run watch
+```
+
+### Creating a Data Model and CRUD actions
+Inside our API-project we're creating a new folder `Models`.
+This folder will hold all the models we use for data we're getting from the user and returning to the user.
+For this example we will create a models for a `BlogPost`-entity. ```csharp
+namespace MyApplication.API.Models
+{
+    /// <summary>
+    /// A blog post entity.
+    /// </summary>
+    public class BlogPost
+    {
+        /// <summary>
+        /// Id of the blog post.
+        /// </summary>
+        public int Id { get; set; }
+
+        /// <summary>
+        ///  Title of the blog post.
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// The text of the blog post.
+        /// </summary>
+        public string Text { get; set; }
+    }
+}
+```
+
+For each entity we create a subfolder in `MyApplication.API.Models`.
+Even though every model is in a seperate subfolder the namespace of the models should be `MyApplication.API.Models`.
+Changing the namespace will greatly reduce the amount of usings we're going to need further down the road.
+
+Now that we have a model, let's create a controller for it.
+Inside `MyApplication.Controllers` we add a new file named `BlogPostsController`. Note the pluralisation of the name.
+```csharp
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.AspNetCore.Mvc;
+using MyApplication.API.Models;
+
+namespace MyApplication.API.Controllers
+{
+    /// <summary>
+    /// Endpoint for blog posts.
+    /// </summary>
+    [ApiController]
+    [Route("api/[controller]")]
+    public class BlogPostsController : ControllerBase
+    {
+        private readonly List<BlogPost> _blogPosts = new List<BlogPost>()
+        {
+            new BlogPost() { Id = 1, Title = "Title 1", Text = "Text 1" },
+            new BlogPost() { Id = 2, Title = "Title 2", Text = "Text 2" },
+        };
+
+        #region GET     /
+        [HttpGet]
+        public ActionResult<IEnumerable<BlogPost>> Get()
+        {
+            return _blogPosts;
+        }
+        #endregion
+        
+        #region GET     /{id}
+        [HttpGet("{id}")]
+        public ActionResult<BlogPost> Get(int id)
+        {
+            return _blogPosts.FirstOrDefault(x => x.Id == id);
+        }
+        #endregion
+    }
+}
 ```
