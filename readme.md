@@ -139,6 +139,7 @@ namespace MyApplication.API.Models
     }
 }
 ```
+
 The create/update/delete functions look like this. Since we've added attributes on our CreateBlogPost and UpdateBlogPost there is no need to check validations here.
 
 ```csharp
@@ -234,4 +235,79 @@ The reason every call is wrapped in a `#region` is to help us list all API route
 
 <img src="./_guide/region-in-controllers.png" width="400">
 
-To finish of the API layer, we're going to add Swagger UI. Swagger is going to help us document our API layer and ables us to test calls inside the browser. Installing Swagger UI is easy using Nuget.
+
+### Adding Swagger
+To finish of the API layer, we're going to add Swagger UI. Swagger is going to help us document our API layer and ables us to test calls inside the browser. Installing Swagger UI is easy using Nuget. Open a terminal window and paste
+
+```dotnet add package Swashbuckle.AspNetCore```
+
+After adding the package, Swagger is not yet configured. All info is bundled on (docs.microsoft.com)[https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-2.2&tabs=visual-studio-code], but for convineance the steps will be listed below.
+
+Swagger isn't the only thing we are going to configure in this project. Inside `MyApplication.API` we're going to add a new folder named `Configurations`. This folder will hold static classes containing, you guessed it, configurations. Add a file `SwaggerConfiguration`.
+
+```csharp
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Builder;
+using Swashbuckle.AspNetCore.Swagger;
+using System.Reflection;
+using System.IO;
+using System;
+
+namespace MyApplication.API
+{
+    internal static class SwaggerConfiguration
+    {
+        internal static void Configure(IServiceCollection services)
+        {
+            // Register the Swagger generator, defining 1 or more Swagger documents
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "My Application API", Version = "v1" });
+
+                // Set the comments path for the Swagger JSON and UI.
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+            });
+        }
+
+        internal static void Configure(IApplicationBuilder app)
+        {
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
+            // specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                
+                // Our application consists only an API (every route is behind /api/).
+                // Setting the RoutePrefix to empty servers Swagger at the root of our application.
+                c.RoutePrefix = string.Empty;
+            });
+        }
+    }
+}
+
+```
+
+To generate an XML with documentation add the following to the `MyApplication.API.csproj`.
+
+```xml
+<PropertyGroup>
+    <!-- Generate a documentation file for Swagger.  -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Disable project wide warnings for missing documentation. -->
+    <!-- <NoWarn>$(NoWarn);1591</NoWarn> -->
+  </PropertyGroup>
+```
+
+Enabling Swagger with the configuration above will throw warnings on every public property without XML documentation.
+Generally we only want to force documentation on the controllers. To disable the warnings, wrap classes where you don't want to put documentation with
+
+```csharp
+#pragma warning disable CS1591
+// ...
+#pragma warning restore CS1591
+```

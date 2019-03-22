@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
+#pragma warning disable CS1591
 namespace MyApplication.API
 {
     public class Program
@@ -22,3 +23,4 @@ namespace MyApplication.API
                 .UseStartup<Startup>();
     }
 }
+#pragma warning restore CS1591

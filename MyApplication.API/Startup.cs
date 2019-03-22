@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+#pragma warning disable CS1591
 namespace MyApplication.API
 {
     public class Startup
@@ -26,6 +27,8 @@ namespace MyApplication.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            SwaggerConfiguration.Configure(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,6 +46,9 @@ namespace MyApplication.API
 
             app.UseHttpsRedirection();
             app.UseMvc();
+
+            SwaggerConfiguration.Configure(app);
         }
     }
 }
+#pragma warning restore CS1591
