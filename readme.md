@@ -313,3 +313,17 @@ namespace ... {
 }
 #pragma warning restore CS1591
 ```
+
+The API documentation looks like the example below. Make sure every action is documentated so your Swagger is always up to date.
+```csharp
+/// <summary>
+/// Update an existing blog post.
+/// </summary>
+/// <param name="id">Id of the blog post to update</param>
+/// <param name="updatedBlogPost">New values for the blog post</param>
+/// <returns>Returns the updated blog post.</returns>
+/// <response code="200">Blog post succesfully updated</response>
+/// <response code="400">Validation error</response>
+/// <response code="404">No blog posts found with the given id</response>
+public ActionResult<BlogPost> Update() {}
+```
