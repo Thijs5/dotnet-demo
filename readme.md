@@ -300,7 +300,7 @@ To generate an XML with documentation add the following to the `MyApplication.AP
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- Disable project wide warnings for missing documentation. -->
     <!-- <NoWarn>$(NoWarn);1591</NoWarn> -->
-  </PropertyGroup>
+</PropertyGroup>
 ```
 
 Enabling Swagger with the configuration above will throw warnings on every public property without XML documentation.
@@ -308,6 +308,8 @@ Generally we only want to force documentation on the controllers. To disable the
 
 ```csharp
 #pragma warning disable CS1591
-// ...
+namespace ... {
+    // ...
+}
 #pragma warning restore CS1591
 ```
