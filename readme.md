@@ -232,6 +232,6 @@ namespace MyApplication.API.Controllers
 
 The reason every call is wrapped in a `#region` is to help us list all API routes in this controller. When minimising every region, our controller looks like a nice overview of all routes.
 
-<img src="./_guide/region-in-controllers.png" style="width: 400px" >
+![#region-in-controller](./_guide/region-in-controllers.png  | width=400)
 
 To finish of the API layer, we're going to add Swagger UI. Swagger is going to help us document our API layer and ables us to test calls inside the browser. Installing Swagger UI is easy using Nuget.
