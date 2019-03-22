@@ -24,12 +24,13 @@ To start of we're creating a single API-project. When this step is finished we w
 - Installed Swagger UI so we call our controller within the browser
 - Created unit tests for our controller
 
+If you're using git, copy the `.gitignore` from the (dotnet core github)[https://github.com/dotnet/core/blob/master/.gitignore] and paste it in the root of the application. Having an incomplete gitignore-file will result in compiled binaries getting added to git.
+
 The naming convension for projects is `$"{NameOfTheApplication}.{Layer}"`.
 Using this convension we will name our API-folder `MyApplication.API`.
-The commands below will create a folder, initialize a .NET core webapi, and run the project.
+The commands below will create a folder, initialize a .NET core webapi, and run the project on port 5000 (http) and 5001 (https). Browsing to (https://localhost:5001/api/values)[https://localhost:5001/api/values] will show a list of two values.
 ```
 mkdir MyApplication.API && cd MyApplication.API
 dotnet new webapi
 dotnet run watch
 ```
-If you're using git, copy the `.gitignore` from the (dotnet core github)[https://github.com/dotnet/core/blob/master/.gitignore] and paste it in the root of the application.
