@@ -118,4 +118,120 @@ namespace MyApplication.API.Controllers
 }
 ```
 
-For the create and update actions, we need need new models
+For the create and update actions, we need need new models representing the user input. We create a `CreateBlogPost` and an `UpdateBlogPost`. For the sake of example we can't edit the title of a blog post after creation.
+
+```csharp
+namespace MyApplication.API.Models
+{
+    public class CreateBlogPost
+    {
+        [Required]
+        [MaxLength(40)]
+        public string Title { get; set; }
+
+        [Required]
+        public string Text { get; set; }
+    }
+    public class UpdateBlogPost
+    {
+        [Required]
+        public string Text { get; set; }
+    }
+}
+```
+The create/update/delete functions look like this. Since we've added attributes on our CreateBlogPost and UpdateBlogPost there is no need to check validations here.
+
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.AspNetCore.Mvc;
+using MyApplication.API.Models;
+
+namespace MyApplication.API.Controllers
+{
+    /// <summary>
+    /// Endpoint for blog posts.
+    /// </summary>
+    [ApiController]
+    [Route("api/[controller]")]
+    public class BlogPostsController : ControllerBase
+    {
+        static int _blogPostId = 0;
+        static List<BlogPost> _blogPosts = new List<BlogPost>()
+        {
+            new BlogPost() { Id = ++_blogPostId, Title = "Title 1", Text = "Text 1" },
+            new BlogPost() { Id = ++_blogPostId, Title = "Title 2", Text = "Text 2" },
+        };
+
+        // ...
+
+        #region POST    /
+        [HttpPost]
+        public void Create([FromBody] CreateBlogPost createBlogPost)
+        {
+            var newBlogPost = new BlogPost()
+            {
+                Id = ++_blogPostId,
+                Title = createBlogPost.Title,
+                Text = createBlogPost.Text,
+            };
+            _blogPosts.Add(newBlogPost);
+        }
+        #endregion
+
+        #region PUT     /{id}
+        [HttpPut("{id}")]
+        public ActionResult<BlogPost> Update(
+            int id,
+            [FromBody] UpdateBlogPost updatedBlogPost
+        )
+        {
+            try
+            {
+                var blogPost = _blogPosts.FirstOrDefault(x => x.Id == id);
+                if (blogPost == null) { throw new Exception("NOT_FOUND"); }
+                blogPost.Text = updatedBlogPost.Text;
+                return blogPost;
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message == "NOT_FOUND")
+                {
+                    return NotFound();
+                }
+                return BadRequest();
+            }
+        }
+        #endregion
+
+        #region DELETE  /{id}
+        [HttpDelete("{id}")]
+        public ActionResult Delete(int id)
+        {
+            try
+            {
+                var blogPost = _blogPosts.FirstOrDefault(x => x.Id == id);
+                if (blogPost == null) { throw new Exception("NOT_FOUND"); }
+                _blogPosts.Remove(blogPost);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message == "NOT_FOUND")
+                {
+                    return NotFound();
+                }
+                return BadRequest();
+            }
+        }
+        #endregion
+    }
+}
+```
+
+The reason every call is wrapped in a `#region` is to help us list all API routes in this controller. When minimising every region, our controller looks like a nice overview of all routes.
+
+<img src="./_guide/region-in-controllers.png" style="width: 400px" >
+
+To finish of the API layer, we're going to add Swagger UI. Swagger is going to help us document our API layer and ables us to test calls inside the browser. Installing Swagger UI is easy using Nuget.
