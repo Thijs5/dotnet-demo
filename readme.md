@@ -39,7 +39,9 @@ dotnet run watch
 ### Creating a Data Model and CRUD actions
 Inside our API-project we're creating a new folder `Models`.
 This folder will hold all the models we use for data we're getting from the user and returning to the user.
-For this example we will create a models for a `BlogPost`-entity. ```csharp
+For this example we will create a models for a `BlogPost`-entity. 
+
+```csharp
 namespace MyApplication.API.Models
 {
     /// <summary>
@@ -71,6 +73,7 @@ Changing the namespace will greatly reduce the amount of usings we're going to n
 
 Now that we have a model, let's create a controller for it.
 Inside `MyApplication.Controllers` we add a new file named `BlogPostsController`. Note the pluralisation of the name.
+
 ```csharp
 using System.Collections.Generic;
 using System.Linq;
