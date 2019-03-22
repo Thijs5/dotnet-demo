@@ -30,7 +30,11 @@ namespace MyApplication.API.Controllers
         [HttpGet("{id}")]
         public ActionResult<BlogPost> Get(int id)
         {
-            return _blogPosts.FirstOrDefault(x => x.Id == id);
+            var blogPost = _blogPosts.FirstOrDefault(x => x.Id == id);
+            if (blogPost == null) {
+                return NotFound();
+            }
+            return blogPost;
         }
         #endregion
     }
