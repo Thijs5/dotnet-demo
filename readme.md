@@ -339,7 +339,7 @@ At the moment we have our business logic embedded in our controllers. This is an
 
 This layer will hold all the logic of the application. After we build a service-layer, the only job of the API layer will be using the service layer and to map the result to responses the web understands.
 
-We start by creating a `classlib` in a seperate folder. The commands below will do just this when executed in the root folder.
+We start by creating a `classlib` in a separate folder. The commands below will do just this when executed in the root folder.
 
 ```
 mkdir MyApplication.Services && cd MyApplication.Services
@@ -352,3 +352,35 @@ The next step is set a reference in our API-project. Using the terminal, navigat
 cd ./MyApplication.API
 dotnet add reference ../MyApplication.Services
 ```
+
+I set up my service layer like below:
+```
+MyApplication.Services
+└───Models
+│   │   BaseEntity.cs
+│   └───BlogPosts
+│       │   BlogPost.cs
+│       │   CreateBlogPost.cs
+│       │   UpdateBlogPost.cs
+│
+└───Services
+    │   BlogPostsDataService.cs
+    │   IDataService.cs
+```
+
+The models folder contains all the models of all the services, seperated in folders named like the service. There is a good reason we don't create a folder in the root named like the entity containing both models and services. Later, when we're configuring Automapper, it's easier to avoid naming conflicts.
+
+Every Service also has a corresponding interface. For example, the `BlogPostsDataService` implements the `IBlogPostsDataService`. I usually keep this in the same file since they're highly linked to each other.
+
+### Adding a Shared Core Layer
+Some functionality is going to be cross-layered. A good example of this are exceptions. For example, at some point in time our `BlogPostsDataService` is going to throw an `EntityNotFoundException` when the user wants to update an entity with an ID that doesn't exists. Our API-layer needs to able to catch this exception.
+
+The Core-layer is created the same as the service-layer. A classlib but referenced by both the service-layer as the API-layer.
+
+```
+mkdir MyApplication.Core && cd MyApplication.Core
+dotnet new classlib
+cd ../MyApplication.Services && dotnet add reference ../MyApplication.Core
+cd ../MyApplication.API && dotnet add reference ../MyApplication.Core
+```
+For now, we add the `EntityNotFoundException` in a folder `Exceptions`.
