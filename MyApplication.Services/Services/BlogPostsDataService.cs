@@ -3,7 +3,7 @@ using System.Linq;
 using MyApplication.Core.Exceptions;
 using MyApplication.Services.Models;
 
-namespace MyApplication.Services.Services
+namespace MyApplication.Services
 {
     /// <summary>
     /// Dataservice for blog posts.

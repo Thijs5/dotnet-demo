@@ -29,6 +29,7 @@ namespace MyApplication.API
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             SwaggerConfiguration.Configure(services);
+            DependencyInjectionConfiguration.Configure(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

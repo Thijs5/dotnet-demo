@@ -2,7 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+
 using MyApplication.API.Models;
+using MyApplication.Core.Exceptions;
+using MyApplication.Services;
+using DTO = MyApplication.Services.Models;
 
 namespace MyApplication.API.Controllers
 {
@@ -14,13 +18,17 @@ namespace MyApplication.API.Controllers
     [Produces("application/json")]
     public class BlogPostsController : ControllerBase
     {
-        #region SERVICES
-        static int _blogPostId = 0;
-        static List<BlogPost> _blogPosts = new List<BlogPost>()
+        /// <summary>
+        /// Constructor containing all required dependencies.
+        /// </summary>
+        /// <param name="blogPostsDataService">An instance of a BlogPostsDataService.</param>
+        public BlogPostsController(IBlogPostsDataService blogPostsDataService)
         {
-            new BlogPost() { Id = ++_blogPostId, Title = "Title 1", Text = "Text 1" },
-            new BlogPost() { Id = ++_blogPostId, Title = "Title 2", Text = "Text 2" },
-        };
+            _blogPostsDataService = blogPostsDataService;
+        }
+
+        #region SERVICES
+        private readonly IBlogPostsDataService _blogPostsDataService;
         #endregion
 
         #region GET     /
@@ -32,7 +40,9 @@ namespace MyApplication.API.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<BlogPost>> GetAll()
         {
-            return _blogPosts;
+            var blogPosts = _blogPostsDataService.GetAll();
+            // return blogPosts;
+            return null;
         }
         #endregion
         
@@ -47,11 +57,12 @@ namespace MyApplication.API.Controllers
         [HttpGet("{id}")]
         public ActionResult<BlogPost> Get(int id)
         {
-            var blogPost = _blogPosts.FirstOrDefault(x => x.Id == id);
+            var blogPost = _blogPostsDataService.GetById(id);
             if (blogPost == null) {
                 return NotFound();
             }
-            return blogPost;
+            // return blogPost;
+            return null;
         }
         #endregion
 
@@ -61,19 +72,19 @@ namespace MyApplication.API.Controllers
         /// </summary>
         /// <param name="createBlogPost">Data for the new blog post</param>
         /// <returns>The newly created blog post</returns>
-        /// <response code="200">Blog post succesfully created</response>
+        /// <response code="200">Blog post successfully created</response>
         /// <response code="400">Validation error</response>
         [HttpPost]
         public ActionResult<BlogPost> Create([FromBody] CreateBlogPost createBlogPost)
         {
-            var newBlogPost = new BlogPost()
+            var newBlogPost = new DTO.CreateBlogPost()
             {
-                Id = ++_blogPostId,
                 Title = createBlogPost.Title,
                 Text = createBlogPost.Text,
             };
-            _blogPosts.Add(newBlogPost);
-            return newBlogPost;
+            var createdBlogPost = _blogPostsDataService.Create(newBlogPost);
+            // return createdBlogPost;
+            return null;
         }
         #endregion
 
@@ -84,7 +95,7 @@ namespace MyApplication.API.Controllers
         /// <param name="id">Id of the blog post to update</param>
         /// <param name="updatedBlogPost">New values for the blog post</param>
         /// <returns>Returns the updated blog post.</returns>
-        /// <response code="200">Blog post succesfully updated</response>
+        /// <response code="200">Blog post successfully updated</response>
         /// <response code="400">Validation error</response>
         /// <response code="404">No blog posts found with the given id</response>
         [HttpPut("{id}")]
@@ -95,14 +106,17 @@ namespace MyApplication.API.Controllers
         {
             try
             {
-                var blogPost = _blogPosts.FirstOrDefault(x => x.Id == id);
-                if (blogPost == null) { throw new Exception("NOT_FOUND"); }
-                blogPost.Text = updatedBlogPost.Text;
-                return blogPost;
+                var updateBlogPostDto = new DTO.UpdateBlogPost()
+                {
+                    Text = updatedBlogPost.Text,
+                };
+                var blogPost = _blogPostsDataService.Update(id, updateBlogPostDto);
+                // return blogPost;
+                return null;
             }
             catch (Exception ex)
             {
-                if (ex.Message == "NOT_FOUND")
+                if (ex.GetType() == typeof(EntityNotFoundException))
                 {
                     return NotFound();
                 }
@@ -116,25 +130,23 @@ namespace MyApplication.API.Controllers
         /// Delete an existing blog post.
         /// </summary>
         /// <param name="id">Id of the blog post to delete</param>
-        /// <response code="200">Blog post succesfully deleted</response>
+        /// <response code="200">Blog post successfully deleted</response>
         /// <response code="404">No blog posts found with the given id</response>
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
             try
             {
-                var blogPost = _blogPosts.FirstOrDefault(x => x.Id == id);
-                if (blogPost == null) { throw new Exception("NOT_FOUND"); }
-                _blogPosts.Remove(blogPost);
+                _blogPostsDataService.Delete(id);
                 return Ok();
             }
             catch (Exception ex)
             {
-                if (ex.Message == "NOT_FOUND")
+                if (ex.GetType() == typeof(EntityNotFoundException))
                 {
                     return NotFound();
                 }
-                throw;
+                return BadRequest();
             }
         }
         #endregion

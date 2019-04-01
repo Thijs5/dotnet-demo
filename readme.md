@@ -2,7 +2,7 @@
 Entire blogs are written about how to use a specific library or showcasing a new piece of technology.
 Much less is written about how to structure your application. In this write-up, we begin at our web layer
 and build up to a multilayered .NET-application.
-When we're finished we'll be having an application consisting of three main archectural layers:
+When we're finished we'll be having an application consisting of three main architectural layers:
 - Database
 - Services
 - Web API
@@ -17,7 +17,7 @@ If you are only interested in the result, by all means fetch the latest master b
 
 ## Prerequisites
 To get started with .NET core, you need to download it from [dotnet.microsoft.com](https://dotnet.microsoft.com/download).
-After downloading and installing everything, verify the installation was succesful. Open to a terminal window and type `dotnet --version`.
+After downloading and installing everything, verify the installation was successful. Open to a terminal window and type `dotnet --version`.
 On the time of writing, this returns `2.2.105`.
 
 ![version](./_guide/version.png)
@@ -74,8 +74,8 @@ namespace MyApplication.API.Models
 ```
 
 For each entity we create a subfolder in `MyApplication.API.Models`.
-Even though every model is in a seperate subfolder the namespace of the models should be `MyApplication.API.Models`.
-Changing the namespace will greatly reduce the amount of usings we're going to need further down the road.
+Even though every model is in a separate subfolder the namespace of the models should be `MyApplication.API.Models`.
+Changing the namespace will greatly reduce the amount of using statements we're going to need further down the road.
 
 Now that we have a model, let's create a controller for it.
 Inside `MyApplication.Controllers` we add a new file named `BlogPostsController`. Note the pluralisation of the name.
@@ -247,7 +247,7 @@ To finish of the API layer, we're going to add Swagger UI. Swagger is going to h
 
 ```dotnet add package Swashbuckle.AspNetCore```
 
-After adding the package, Swagger is not yet configured. All info is bundled on (docs.microsoft.com)[https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-2.2&tabs=visual-studio-code], but for convineance the steps will be listed below.
+After adding the package, Swagger is not yet configured. All info is bundled on (docs.microsoft.com)[https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-2.2&tabs=visual-studio-code], but for convenience the steps will be listed below.
 
 Swagger isn't the only thing we are going to configure in this project. Inside `MyApplication.API` we're going to add a new folder named `Configurations`. This folder will hold static classes containing, you guessed it, configurations. Add a file `SwaggerConfiguration`.
 
@@ -320,7 +320,7 @@ namespace ... {
 #pragma warning restore CS1591
 ```
 
-The API documentation looks like the example below. Make sure every action is documentated so your Swagger is always up to date.
+The API documentation looks like the example below. Make sure every action is documented so your Swagger is always up to date.
 ```csharp
 /// <summary>
 /// Update an existing blog post.
@@ -328,14 +328,14 @@ The API documentation looks like the example below. Make sure every action is do
 /// <param name="id">Id of the blog post to update</param>
 /// <param name="updatedBlogPost">New values for the blog post</param>
 /// <returns>Returns the updated blog post.</returns>
-/// <response code="200">Blog post succesfully updated</response>
+/// <response code="200">Blog post successfully updated</response>
 /// <response code="400">Validation error</response>
 /// <response code="404">No blog posts found with the given id</response>
 public ActionResult<BlogPost> Update() {}
 ```
 
 ## Creating a Service Layer
-At the moment we have our business logic embedded in our controllers. This is an anti-pattern almost every tutorial follows. It's much better practice to create a seperate service layer.
+At the moment we have our business logic embedded in our controllers. This is an anti-pattern almost every tutorial follows. It's much better practice to create a separate service layer.
 
 This layer will hold all the logic of the application. After we build a service-layer, the only job of the API layer will be using the service layer and to map the result to responses the web understands.
 
@@ -384,3 +384,36 @@ cd ../MyApplication.Services && dotnet add reference ../MyApplication.Core
 cd ../MyApplication.API && dotnet add reference ../MyApplication.Core
 ```
 For now, we add the `EntityNotFoundException` in a folder `Exceptions`.
+
+### Using Services in the API-Layer
+Fortunately, dependency injection is now embedded in the .NET framework. Gone are the days of choosing between Autofac or Ninject or any of the popular frameworks.
+
+In general, you want to include your required dependencies in the constructor of the controller. By using the constructor (and not creating an empty constructor), you are not allowing the application to create a controller without the required dependencies. Thus reducing the chance for errors. The `BlogPostsController` now looks like this.
+
+```csharp
+public class BlogPostsController : ControllerBase
+{
+    /// <summary>
+    /// Constructor containing all required dependencies.
+    /// </summary>
+    /// <param name="blogPostsDataService">An instance of a BlogPostsDataService.</param>
+    public BlogPostsController(IBlogPostsDataService blogPostsDataService)
+    {
+        _blogPostsDataService = blogPostsDataService;
+    }
+
+    #region SERVICES
+    private readonly IBlogPostsDataService _blogPostsDataService;
+    #endregion
+
+    // ...
+}
+```
+
+Thanks to the [blogpost of Maarten Balliauw](https://blog.maartenballiauw.be/post/2018/10/19/registering-a-type-as-an-interface-and-as-self-with-asp.net-core-dependency-injection.html), registering services is as easy as writing
+
+```csharp
+services.AddTransient<IBlogPostsDataService, BlogPostsDataService>().AsSelf();
+```
+
+
