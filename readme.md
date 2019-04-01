@@ -416,4 +416,9 @@ Thanks to the [blogpost of Maarten Balliauw](https://blog.maartenballiauw.be/pos
 services.AddTransient<IBlogPostsDataService, BlogPostsDataService>().AsSelf();
 ```
 
+### Automapping Services and API
+The final step we need to do, is using Automapper to map our service DTO objects to the objects the API-layer is going to return. Installing Automapper is as simple as running the command below in the API-layer.
 
+```
+
+```
