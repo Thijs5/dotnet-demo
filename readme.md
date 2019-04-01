@@ -333,3 +333,22 @@ The API documentation looks like the example below. Make sure every action is do
 /// <response code="404">No blog posts found with the given id</response>
 public ActionResult<BlogPost> Update() {}
 ```
+
+## Creating a Service Layer
+At the moment we have our business logic embedded in our controllers. This is an anti-pattern almost every tutorial follows. It's much better practice to create a seperate service layer.
+
+This layer will hold all the logic of the application. After we build a service-layer, the only job of the API layer will be using the service layer and to map the result to responses the web understands.
+
+We start by creating a `classlib` in a seperate folder. The commands below will do just this when executed in the root folder.
+
+```
+mkdir MyApplication.Services && cd MyApplication.Services
+dotnet new classlib
+```
+
+The next step is set a reference in our API-project. Using the terminal, navigate to the API-folder and set the reference.
+
+```
+cd ./MyApplication.API
+dotnet add reference ../MyApplication.Services
+```
